@@ -201,6 +201,11 @@ function updateCountdownDisplay(days, hours, minutes, seconds) {
 function handleCountdownError(errorType) {
     console.error(`🚨 Countdown error: ${errorType}`);
 
+    // Show emergency override button for user to manually activate if needed
+    if (typeof window.showEmergencyOverride === 'function') {
+        window.showEmergencyOverride();
+    }
+
     // Try different recovery strategies
     switch (errorType) {
         case 'invalid_time':
@@ -210,10 +215,14 @@ function handleCountdownError(errorType) {
 
         case 'update_error':
         case 'timeout':
-            // Emergency fallback
-            console.log('🚨 Activating emergency birthday mode');
-            storeBirthdayState(true);
-            setTimeout(() => showBirthday(), 1000);
+            // Emergency fallback - wait longer before forcing birthday mode
+            console.log('🚨 Activating emergency birthday mode after extended timeout');
+            setTimeout(() => {
+                if (countdownStatus === 'countdown_active') {
+                    storeBirthdayState(true);
+                    showBirthday();
+                }
+            }, 60000); // Wait 1 minute for user to potentially use emergency override
             break;
 
         default:
@@ -287,45 +296,73 @@ async function syncTimeWithServer() {
     console.log('⏰ Time sync failed, using local time');
 }
 
-// Manual override function (for emergencies)
-function activateBirthdayMode() {
-    console.log('🔧 Manual birthday mode activated');
+// Emergency override function - only activates if countdown fails
+function activateEmergencyBirthdayMode() {
+    console.log('� Emergency birthday mode activated - countdown failed');
     manualOverride = true;
     storeBirthdayState(true);
     showBirthday();
 }
 
-// Add manual override button (hidden developer feature)
-function addManualOverride() {
-    const overrideButton = document.createElement('button');
-    overrideButton.textContent = '🎂';
+// Add emergency override button - completely hidden until countdown fails
+function addEmergencyOverride() {
+    const overrideButton = document.createElement('div');
+    overrideButton.id = 'emergency-override';
     overrideButton.style.cssText = `
         position: fixed;
-        bottom: 20px;
-        left: 20px;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: rgba(255, 182, 193, 0.8);
-        border: 2px solid white;
-        color: white;
-        font-size: 20px;
+        bottom: 10px;
+        left: 10px;
+        width: 30px;
+        height: 30px;
+        background: transparent;
+        border: none;
         cursor: pointer;
         z-index: 10000;
-        opacity: 0.1;
-        transition: opacity 0.3s;
+        display: none;
+        opacity: 0;
+        pointer-events: none;
     `;
 
-    overrideButton.onmouseover = () => overrideButton.style.opacity = '1';
-    overrideButton.onmouseout = () => overrideButton.style.opacity = '0.1';
+    // Create a small invisible clickable area
+    const clickArea = document.createElement('div');
+    clickArea.style.cssText = `
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 182, 193, 0.05);
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    `;
 
+    overrideButton.appendChild(clickArea);
+
+    let clickCount = 0;
     overrideButton.onclick = () => {
-        if (confirm('🎂 Activate birthday mode? (Developer override)')) {
-            activateBirthdayMode();
+        clickCount++;
+        console.log(`Emergency override clicked ${clickCount}/5 times`);
+
+        if (clickCount >= 5) {
+            // Require 5 clicks to prevent accidental activation
+            if (confirm('⚠️ EMERGENCY: Activate birthday mode? Only use if countdown is broken.')) {
+                activateEmergencyBirthdayMode();
+                overrideButton.style.display = 'none';
+            }
+            clickCount = 0;
         }
     };
 
     document.body.appendChild(overrideButton);
+
+    // Function to show emergency button only on countdown failure
+    window.showEmergencyOverride = () => {
+        console.log('🚨 Showing emergency override button');
+        overrideButton.style.display = 'block';
+        overrideButton.style.opacity = '0.1';
+        overrideButton.style.pointerEvents = 'auto';
+
+        // Visual indicator that something is wrong
+        clickArea.style.background = 'rgba(255, 0, 0, 0.1)';
+        clickArea.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.3)';
+    };
 }
 function showBirthday() {
     console.log('Showing birthday section...');
@@ -1495,8 +1532,8 @@ function init() {
     countdownAttempts = 0;
     countdownStatus = 'initializing';
 
-    // Add manual override button for emergencies
-    addManualOverride();
+    // Add emergency override button (completely hidden)
+    addEmergencyOverride();
 
     // Check if it's time for birthday with multiple validations
     if (checkTime()) {
