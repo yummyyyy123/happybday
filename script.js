@@ -1,9 +1,34 @@
-// Countdown and Birthday Reveal Logic
+// Enhanced countdown system with multiple countermeasures
+let countdownInterval;
+let countdownAttempts = 0;
+let maxCountdownAttempts = 5;
+let countdownStatus = 'initializing';
+let timeSyncSources = [];
+let lastKnownTime = null;
+let timeSyncAttempts = 0;
+let manualOverride = false;
+
+// Target date configuration with multiple fallbacks
 const targetDate = new Date();
 targetDate.setMonth(2); // March (0-indexed)
 targetDate.setDate(10); // 10th
 targetDate.setHours(0, 0, 0, 0); // Midnight
 
+// Backup target date in case of timezone issues
+const backupTargetDate = new Date('2026-03-10T00:00:00');
+
+// Emergency override date (if everything fails)
+const emergencyDate = new Date();
+emergencyDate.setTime(Date.now() + (24 * 60 * 60 * 1000)); // 24 hours from now
+
+// Time synchronization sources
+const timeSyncAPIs = [
+    'https://worldtimeapi.org/api/ip',
+    'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
+    'https://api.timezonedb.com/v2.1/get-time-zone?key=demo&format=json&by=zone&zone=UTC'
+];
+
+// Countdown and Birthday Reveal Logic
 const countdownSection = document.getElementById('countdown-section');
 const birthdaySection = document.getElementById('birthday-section');
 const typewriterText = document.getElementById('typewriter-text');
@@ -28,35 +53,280 @@ Happy 24th birthday again. I'm really glad na pinagtagpo tayo ng tadhana.
 Love,
 Me 💙`;
 
-// Check if it's already past the target time
+const now = new Date();
+const localDifference = targetDate - now;
+
+// Check if it's already past the target time with multiple validations
 function checkTime() {
+    console.log('🔍 Checking time with multiple validations...');
+
     const now = new Date();
-    const difference = targetDate - now;
-    return difference <= 0;
+    const localDifference = targetDate - now;
+    const backupDifference = backupTargetDate - now;
+
+    console.log('Current time:', now.toISOString());
+    console.log('Target date:', targetDate.toISOString());
+    console.log('Local difference:', localDifference);
+    console.log('Backup difference:', backupDifference);
+
+    // Check if local storage has a stored state
+    const storedState = localStorage.getItem('birthdayCountdownState');
+    if (storedState) {
+        try {
+            const parsedState = JSON.parse(storedState);
+            if (parsedState.isBirthdayTime && parsedState.timestamp > Date.now() - 3600000) { // Within last hour
+                console.log('🎉 Using stored birthday state');
+                return true;
+            }
+        } catch (e) {
+            console.log('Error parsing stored state:', e);
+        }
+    }
+
+    // Check manual override
+    if (manualOverride) {
+        console.log('🔧 Manual override activated');
+        return true;
+    }
+
+    // Primary check
+    if (localDifference <= 0) {
+        console.log('🎂 Primary check: Birthday time!');
+        storeBirthdayState(true);
+        return true;
+    }
+
+    // Backup check
+    if (backupDifference <= 0) {
+        console.log('🎂 Backup check: Birthday time!');
+        storeBirthdayState(true);
+        return true;
+    }
+
+    // Emergency fallback (if both dates are in the past)
+    if (emergencyDate - now <= 0) {
+        console.log('🚨 Emergency fallback: Time expired, showing birthday');
+        storeBirthdayState(true);
+        return true;
+    }
+
+    console.log('⏰ Not birthday time yet');
+    storeBirthdayState(false);
+    return false;
 }
 
-// Update countdown timer
-function updateCountdown() {
-    const now = new Date();
-    const difference = targetDate - now;
+// Store birthday state in localStorage for persistence
+function storeBirthdayState(isBirthday) {
+    try {
+        localStorage.setItem('birthdayCountdownState', JSON.stringify({
+            isBirthdayTime: isBirthday,
+            timestamp: Date.now(),
+            targetDate: targetDate.toISOString()
+        }));
+    } catch (e) {
+        console.log('Error storing birthday state:', e);
+    }
+}
 
-    if (difference <= 0) {
-        showBirthday();
+// Enhanced countdown update with error handling
+function updateCountdown() {
+    try {
+        countdownAttempts++;
+
+        const now = new Date();
+
+        // Validate current time
+        if (isNaN(now.getTime())) {
+            console.error('❌ Invalid current time detected');
+            handleCountdownError('invalid_time');
+            return;
+        }
+
+        const difference = targetDate - now;
+
+        // Check if time has passed
+        if (difference <= 0) {
+            console.log('🎉 Time reached! Showing birthday');
+            showBirthday();
+            clearInterval(countdownInterval);
+            return;
+        }
+
+        // Calculate time units with validation
+        const days = Math.max(0, Math.floor(difference / (1000 * 60 * 60 * 24)));
+        const hours = Math.max(0, Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+        const minutes = Math.max(0, Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)));
+        const seconds = Math.max(0, Math.floor((difference % (1000 * 60)) / 1000));
+
+        // Update DOM with error handling
+        updateCountdownDisplay(days, hours, minutes, seconds);
+
+        console.log(`⏰ Countdown: ${days}d ${hours}h ${minutes}m ${seconds}s (attempt ${countdownAttempts})`);
+
+        // Emergency timeout after too many attempts
+        if (countdownAttempts > 10000) { // ~3 hours
+            console.warn('🚨 Emergency timeout triggered');
+            handleCountdownError('timeout');
+        }
+
+    } catch (error) {
+        console.error('❌ Countdown update error:', error);
+        handleCountdownError('update_error');
+    }
+}
+
+// Safe DOM update function
+function updateCountdownDisplay(days, hours, minutes, seconds) {
+    const elements = {
+        days: document.getElementById('days'),
+        hours: document.getElementById('hours'),
+        minutes: document.getElementById('minutes'),
+        seconds: document.getElementById('seconds')
+    };
+
+    // Update each element safely
+    Object.entries(elements).forEach(([key, element]) => {
+        if (element) {
+            const value = String(eval(key)).padStart(2, '0');
+            if (element.textContent !== value) {
+                element.textContent = value;
+            }
+        } else {
+            console.warn(`⚠️ Countdown element '${key}' not found`);
+        }
+    });
+}
+
+// Error handling and recovery
+function handleCountdownError(errorType) {
+    console.error(`🚨 Countdown error: ${errorType}`);
+
+    // Try different recovery strategies
+    switch (errorType) {
+        case 'invalid_time':
+            // Try to sync time
+            syncTimeWithServer();
+            break;
+
+        case 'update_error':
+        case 'timeout':
+            // Emergency fallback
+            console.log('🚨 Activating emergency birthday mode');
+            storeBirthdayState(true);
+            setTimeout(() => showBirthday(), 1000);
+            break;
+
+        default:
+            // Generic recovery
+            console.log('🔄 Attempting countdown recovery');
+            setTimeout(() => {
+                if (countdownAttempts < maxCountdownAttempts) {
+                    updateCountdown();
+                } else {
+                    console.error('❌ Max recovery attempts reached');
+                    handleCountdownError('timeout');
+                }
+            }, 5000);
+    }
+}
+
+// Time synchronization with external APIs
+async function syncTimeWithServer() {
+    if (timeSyncAttempts >= 3) {
+        console.log('⏰ Max sync attempts reached');
         return;
     }
 
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    timeSyncAttempts++;
 
-    document.getElementById('days').textContent = String(days).padStart(2, '0');
-    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+    for (const apiUrl of timeSyncAPIs) {
+        try {
+            console.log(`🌐 Syncing time with ${apiUrl}`);
+            const response = await fetch(apiUrl, { timeout: 5000 });
+
+            if (response.ok) {
+                const data = await response.json();
+                let serverTime;
+
+                // Parse different API formats
+                if (data.datetime) {
+                    serverTime = new Date(data.datetime);
+                } else if (data.currentDateTime) {
+                    serverTime = new Date(data.currentDateTime);
+                } else if (data.timestamp) {
+                    serverTime = new Date(data.timestamp * 1000);
+                }
+
+                if (serverTime && !isNaN(serverTime.getTime())) {
+                    // Adjust for network latency
+                    const latency = Date.now() - serverTime.getTime();
+                    serverTime = new Date(serverTime.getTime() + latency / 2);
+
+                    console.log('✅ Time synced successfully');
+                    timeSyncSources.push(serverTime);
+
+                    // Use averaged time if we have multiple sources
+                    if (timeSyncSources.length >= 2) {
+                        const avgTime = new Date(
+                            timeSyncSources.reduce((sum, time) => sum + time.getTime(), 0) / timeSyncSources.length
+                        );
+                        lastKnownTime = avgTime;
+                        console.log('📊 Using averaged server time');
+                    } else {
+                        lastKnownTime = serverTime;
+                    }
+
+                    return;
+                }
+            }
+        } catch (error) {
+            console.log(`❌ Failed to sync with ${apiUrl}:`, error.message);
+        }
+    }
+
+    console.log('⏰ Time sync failed, using local time');
 }
 
-// Show birthday section
+// Manual override function (for emergencies)
+function activateBirthdayMode() {
+    console.log('🔧 Manual birthday mode activated');
+    manualOverride = true;
+    storeBirthdayState(true);
+    showBirthday();
+}
+
+// Add manual override button (hidden developer feature)
+function addManualOverride() {
+    const overrideButton = document.createElement('button');
+    overrideButton.textContent = '🎂';
+    overrideButton.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255, 182, 193, 0.8);
+        border: 2px solid white;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        z-index: 10000;
+        opacity: 0.1;
+        transition: opacity 0.3s;
+    `;
+
+    overrideButton.onmouseover = () => overrideButton.style.opacity = '1';
+    overrideButton.onmouseout = () => overrideButton.style.opacity = '0.1';
+
+    overrideButton.onclick = () => {
+        if (confirm('🎂 Activate birthday mode? (Developer override)')) {
+            activateBirthdayMode();
+        }
+    };
+
+    document.body.appendChild(overrideButton);
+}
 function showBirthday() {
     console.log('Showing birthday section...');
     
@@ -1215,38 +1485,74 @@ function createMouseTrailParticle(x, y) {
     }
 }
 
-// Initialize the page with performance optimizations and engagement features
+// Initialize the page with enhanced countdown system and countermeasures
 function init() {
-    console.log('Initializing birthday website...');
-    
-    // Check if it's time for birthday
+    console.log('🚀 Initializing birthday website with enhanced countdown system...');
+    console.log('📅 Target date:', targetDate.toISOString());
+    console.log('🕐 Current time:', new Date().toISOString());
+
+    // Reset countdown status
+    countdownAttempts = 0;
+    countdownStatus = 'initializing';
+
+    // Add manual override button for emergencies
+    addManualOverride();
+
+    // Check if it's time for birthday with multiple validations
     if (checkTime()) {
-        console.log('Birthday time confirmed, showing birthday section');
+        console.log('🎂 Birthday time confirmed, showing birthday section');
+        countdownStatus = 'birthday_time';
         showBirthday();
     } else {
-        console.log('Not birthday time yet, showing countdown');
-        // Start countdown
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-        
-        // Create decorative elements for countdown
-        createEnhancedFloatingElements();
-        createSparkles();
-        createStars();
-        addTitleInteractions();
+        console.log('⏰ Not birthday time yet, starting enhanced countdown');
+        countdownStatus = 'countdown_active';
+
+        // Start countdown with error handling
+        try {
+            countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown(); // Initial update
+
+            // Create decorative elements for countdown
+            createEnhancedFloatingElements();
+            createSparkles();
+            createStars();
+            addTitleInteractions();
+        } catch (error) {
+            console.error('❌ Failed to start countdown:', error);
+            handleCountdownError('init_error');
+        }
+
+        // Attempt time synchronization in background
+        setTimeout(() => {
+            syncTimeWithServer();
+        }, 2000);
     }
-    
+
     // Add engagement features
     addKeyboardInteractions();
     addMouseTrail();
-    
+
     // Add performance monitoring
     if ('requestIdleCallback' in window) {
         requestIdleCallback(() => {
-            console.log('Birthday website loaded successfully!');
+            console.log('✅ Birthday website loaded successfully!');
+            console.log('🎯 Countdown status:', countdownStatus);
             createSoundEffect('celebrate');
         });
+    } else {
+        setTimeout(() => {
+            console.log('✅ Birthday website loaded successfully!');
+            console.log('🎯 Countdown status:', countdownStatus);
+            createSoundEffect('celebrate');
+        }, 100);
     }
+
+    // Monitor countdown health
+    setInterval(() => {
+        if (countdownStatus === 'countdown_active' && countdownAttempts > 0) {
+            console.log(`💓 Countdown health check: ${countdownAttempts} updates, status: ${countdownStatus}`);
+        }
+    }, 30000); // Check every 30 seconds
 }
 
 // Add some interactive hover effects
