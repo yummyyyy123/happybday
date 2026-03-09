@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Placeholder Images</title>
+</head>
+<body>
+    <h1>Creating placeholder images...</h1>
+    <canvas id="canvas1" width="400" height="300"></canvas>
+    <canvas id="canvas2" width="400" height="300"></canvas>
+    <canvas id="canvas3" width="400" height="300"></canvas>
+    <canvas id="canvas4" width="400" height="300"></canvas>
+    
+    <script>
+        // Create placeholder images with baby blue theme
+        function createPlaceholder(canvasId, text, color1, color2) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, 400, 300);
+            gradient.addColorStop(0, color1);
+            gradient.addColorStop(1, color2);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 400, 300);
+            
+            // Add decorative elements
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * 400, Math.random() * 300, Math.random() * 30 + 10, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // Add text
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Georgia';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 200, 150);
+            
+            // Add heart
+            ctx.font = '30px serif';
+            ctx.fillText('💙', 200, 190);
+            
+            // Convert to blob and download
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = canvasId.replace('canvas', 'photo') + '.jpg';
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/jpeg', 0.9);
+        }
+        
+        // Create 4 different placeholder images
+        setTimeout(() => createPlaceholder('canvas1', 'Memory 1', '#87CEEB', '#B0E0E6'), 100);
+        setTimeout(() => createPlaceholder('canvas2', 'Memory 2', '#B0E0E6', '#E0F6FF'), 200);
+        setTimeout(() => createPlaceholder('canvas3', 'Memory 3', '#87CEEB', '#ADD8E6'), 300);
+        setTimeout(() => createPlaceholder('canvas4', 'Memory 4', '#B0E0E6', '#87CEEB'), 400);
+        
+        setTimeout(() => {
+            document.body.innerHTML = '<h1>✅ Placeholder images created successfully!</h1><p>Check your downloads folder for photo1.jpg, photo2.jpg, photo3.jpg, and photo4.jpg</p><p>Move these files to the images folder and replace them with your real photos.</p>';
+        }, 2000);
+    </script>
+</body>
+</html>

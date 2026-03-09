@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Birthday Surprise 💙</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Countdown Section -->
+    <div id="countdown-section" class="section">
+        <div class="floating-hearts"></div>
+        <div class="sparkles"></div>
+        <div class="stars"></div>
+        
+        <div class="countdown-container">
+            <h1 class="countdown-message">Your 23rd Birthday Surprise is unlocking… 💙</h1>
+            <p class="countdown-subtitle">Something magical for my favorite birthday girl is coming at midnight!</p>
+            
+            <div class="countdown-timer">
+                <div class="time-block">
+                    <span id="days" class="time">00</span>
+                    <span class="label">Days</span>
+                </div>
+                <div class="time-block">
+                    <span id="hours" class="time">00</span>
+                    <span class="label">Hours</span>
+                </div>
+                <div class="time-block">
+                    <span id="minutes" class="time">00</span>
+                    <span class="label">Minutes</span>
+                </div>
+                <div class="time-block">
+                    <span id="seconds" class="time">00</span>
+                    <span class="label">Seconds</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Birthday Section -->
+    <div id="birthday-section" class="section hidden">
+        <div class="confetti-container"></div>
+        <div class="floating-hearts"></div>
+        
+        <div class="birthday-container">
+            <div class="birthday-header">
+                <h1 class="birthday-title">Happy 23rd Birthday My Love! 🎂💙</h1>
+                <div class="typewriter-container">
+                    <p id="typewriter-text" class="typewriter"></p>
+                </div>
+            </div>
+
+            <div class="cake-container">
+                <div class="birthday-cake" id="birthday-cake">
+                    <div class="cake-layer"></div>
+                    <div class="cake-layer"></div>
+                    <div class="cake-layer"></div>
+                    <div class="candles">
+                        <div class="candle">
+                            <div class="flame"></div>
+                        </div>
+                        <div class="candle">
+                            <div class="flame"></div>
+                        </div>
+                        <div class="candle">
+                            <div class="flame"></div>
+                        </div>
+                    </div>
+                </div>
+                <p class="cake-hint">Click the cake to blow out candles! 💙</p>
+            </div>
+
+            <div class="love-button-container">
+                <button id="love-button" class="love-button">Tap for more love 💙</button>
+            </div>
+
+            <!-- Birthday Wishes Section -->
+            <div class="birthday-wishes-section">
+                <h2 class="wishes-title">My Birthday Wishes For You 💙</h2>
+                <div class="wishes-container">
+                    <div class="wish-card">
+                        <div class="wish-icon">🌟</div>
+                        <h3>Success & Joy</h3>
+                        <p>May this year bring you endless success in everything you do and joy in every moment!</p>
+                    </div>
+                    <div class="wish-card">
+                        <div class="wish-icon">💫</div>
+                        <h3>Dreams Come True</h3>
+                        <p>May all your beautiful dreams come true and may you achieve everything you set your heart on!</p>
+                    </div>
+                    <div class="wish-card">
+                        <div class="wish-icon">💕</div>
+                        <h3>Love & Happiness</h3>
+                        <p>May you always feel as loved and cherished as you make me feel every single day!</p>
+                    </div>
+                    <div class="wish-card">
+                        <div class="wish-icon">🎂</div>
+                        <h3>Perfect Year</h3>
+                        <p>May this 23rd year be your best yet - filled with laughter, adventure, and amazing memories!</p>
+                    </div>
+                    <div class="wish-card">
+                        <div class="wish-icon">🦋</div>
+                        <h3>Growth & Transformation</h3>
+                        <p>May you continue to grow into the amazing person you're becoming and transform all your goals into reality!</p>
+                    </div>
+                    <div class="wish-card">
+                        <div class="wish-icon">🌈</div>
+                        <h3>Magic & Wonder</h3>
+                        <p>May your life be filled with magical moments and wonderful surprises that make your heart smile!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="love-popup" class="love-popup hidden">
+                <div class="popup-content">
+                    <h3>You're my everything!</h3>
+                    <p>Every moment with you is a treasure. I love you more than words can express. Happy Birthday, my beautiful girlfriend! 💙</p>
+                    <button id="close-popup" class="close-button">Close</button>
+                </div>
+            </div>
+
+            <!-- Memory Timeline -->
+            <div class="memory-timeline-section">
+                <h2 class="memories-title">Our Story 💙</h2>
+                <div class="timeline-container">
+                    <div class="timeline-item" data-memory="1">
+                        <div class="timeline-photo">
+                            <img src="images/photo1.jpg" alt="Memory 1" class="timeline-img">
+                        </div>
+                        <div class="timeline-content">
+                            <h3>Where it all began</h3>
+                            <p>The moment I knew you were special</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-memory="2">
+                        <div class="timeline-content">
+                            <h3>Our adventures</h3>
+                            <p>Every day with you is an adventure</p>
+                        </div>
+                        <div class="timeline-photo">
+                            <img src="images/photo2.jpg" alt="Memory 2" class="timeline-img">
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-memory="3">
+                        <div class="timeline-photo">
+                            <img src="images/photo3.jpg" alt="Memory 3" class="timeline-img">
+                        </div>
+                        <div class="timeline-content">
+                            <h3>My favorite moments</h3>
+                            <p>The reason I smile every day</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-memory="4">
+                        <div class="timeline-content">
+                            <h3>Forever and always</h3>
+                            <p>The best is yet to come</p>
+                        </div>
+                        <div class="timeline-photo">
+                            <img src="images/photo4.jpg" alt="Memory 4" class="timeline-img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Polaroid Photos -->
+            <div class="polaroid-section">
+                <h2 class="polaroid-title">Our Memories 💙</h2>
+                <div class="polaroid-container" id="polaroid-container">
+                    <!-- Polaroids will be added dynamically -->
+                </div>
+            </div>
+
+            <!-- Floating Memories -->
+            <div class="floating-memories-section">
+                <h2 class="floating-title">Floating Memories 💙</h2>
+                <div class="floating-memories-container" id="floating-memories">
+                    <!-- Floating photos will be added dynamically -->
+                </div>
+            </div>
+
+            <!-- Cinematic Slideshow -->
+            <div class="slideshow-section">
+                <h2 class="slideshow-title">Our Journey 💙</h2>
+                <div class="slideshow-container">
+                    <div class="slideshow" id="slideshow">
+                        <div class="slide active">
+                            <img src="images/photo1.jpg" alt="Memory 1" class="slide-img">
+                            <div class="slide-caption">Our adventures</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/photo2.jpg" alt="Memory 2" class="slide-img">
+                            <div class="slide-caption">My favorite moments</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/photo3.jpg" alt="Memory 3" class="slide-img">
+                            <div class="slide-caption">The reason I smile</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/photo4.jpg" alt="Memory 4" class="slide-img">
+                            <div class="slide-caption">Forever and always</div>
+                        </div>
+                    </div>
+                    <div class="slideshow-controls">
+                        <button id="slideshow-prev" class="slideshow-btn">‹</button>
+                        <div class="slideshow-dots">
+                            <span class="dot active" data-slide="0"></span>
+                            <span class="dot" data-slide="1"></span>
+                            <span class="dot" data-slide="2"></span>
+                            <span class="dot" data-slide="3"></span>
+                        </div>
+                        <button id="slideshow-next" class="slideshow-btn">›</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox hidden">
+        <div class="lightbox-content">
+            <img id="lightbox-image" src="" alt="Memory">
+            <button id="close-lightbox" class="close-lightbox">&times;</button>
+        </div>
+    </div>
+
+    <!-- Music Controls -->
+    <div class="music-controls">
+        <button id="music-toggle" class="music-button">
+            <span id="music-icon">🎵</span>
+        </button>
+        <audio id="background-music" loop>
+            <source src="music/romantic.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
