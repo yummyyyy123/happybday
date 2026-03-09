@@ -1046,23 +1046,23 @@ function initializeCakeInteraction() {
 
 // Music controls
 const musicToggle = document.getElementById('music-toggle');
-const backgroundMusic = document.getElementById('background-music');
+const youtubeMusic = document.getElementById('youtube-music');
 const musicIcon = document.getElementById('music-icon');
 
-if (musicToggle && backgroundMusic) {
-    // Set initial state to muted
-    backgroundMusic.volume = 0.3;
-    backgroundMusic.muted = true;
+if (musicToggle && youtubeMusic) {
+    let isMusicPlaying = false;
     
     musicToggle.addEventListener('click', () => {
-        if (backgroundMusic.muted) {
-            backgroundMusic.muted = false;
-            backgroundMusic.play().catch(e => console.log('Music play failed:', e));
-            musicIcon.textContent = '🔊';
-        } else {
-            backgroundMusic.muted = true;
-            backgroundMusic.pause();
+        if (isMusicPlaying) {
+            // Pause music by changing src to muted version
+            youtubeMusic.src = 'https://www.youtube.com/embed/orI_vom9Xq8?autoplay=0&mute=1&loop=1&playlist=orI_vom9Xq8&list=RDorI_vom9Xq8&start_radio=1&enablejsapi=1&controls=0&showinfo=0&rel=0&iv_load_policy=3';
             musicIcon.textContent = '🎵';
+            isMusicPlaying = false;
+        } else {
+            // Play music by changing src to unmuted version
+            youtubeMusic.src = 'https://www.youtube.com/embed/orI_vom9Xq8?autoplay=1&mute=0&loop=1&playlist=orI_vom9Xq8&list=RDorI_vom9Xq8&start_radio=1&enablejsapi=1&controls=0&showinfo=0&rel=0&iv_load_policy=3';
+            musicIcon.textContent = '🔊';
+            isMusicPlaying = true;
         }
     });
 }
