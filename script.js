@@ -9,7 +9,7 @@ const birthdaySection = document.getElementById('birthday-section');
 const typewriterText = document.getElementById('typewriter-text');
 
 // Birthday message for typewriter effect
-const birthdayMessage = `Happy Birthday, my love 💙
+const birthdayMessage = `Happy 24th Birthday, my love 💙
 
 Gusto ko lang magsulat ng simple na letter for you, kasi minsan the best way to say things is just straight from the heart.
 
@@ -23,7 +23,7 @@ Thank you for being patient with me, for laughing with me, and for sharing your 
 
 So today, I just want you to feel extra loved and appreciated — because you truly deserve it.
 
-Happy birthday again. I'm really glad na pinagtagpo tayo ng tadhana.
+Happy 24th birthday again. I'm really glad na pinagtagpo tayo ng tadhana.
 
 Love,
 Me 💙`;

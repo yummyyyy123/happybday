@@ -80,7 +80,7 @@ vercel --prod
 
 ### Current Settings
 - **Target Date**: March 10th at midnight
-- **Birthday Age**: 23rd birthday
+- **Birthday Age**: 24th birthday
 - **Photos**: 12 portrait-oriented images
 - **Sections**: Countdown, Birthday celebration, Timeline, Polaroids, Floating Memories, Slideshow
 
@@ -156,6 +156,6 @@ Share the link with the birthday person, and they'll see:
 
 ---
 
-**Made with 💙 for someone special on their 23rd birthday!**
+**Made with 💙 for someone special on their 24th birthday!**
 
 *Last updated: March 2026*
